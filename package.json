@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "author": "colourful <colourful4570@163.com>",
+  "scripts": {
+    "dev": "umi dev",
+    "build": "umi build",
+    "postinstall": "umi setup",
+    "setup": "umi setup",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "@antv/g6": "^5.0.35",
+    "@umijs/plugins": "^4.4.2",
+    "antd": "^5.22.5",
+    "umi": "^4.3.36"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "typescript": "^5.0.3"
+  }
+}
