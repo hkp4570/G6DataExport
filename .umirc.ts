@@ -9,4 +9,7 @@ export default defineConfig({
   ],
   dva:{},
   npmClient: 'yarn',
+  alias: {
+    '@': '/src',
+  }
 });

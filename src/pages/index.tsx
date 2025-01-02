@@ -3,29 +3,33 @@ import { Graph } from '@antv/g6';
 import { Drawer } from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
+import { useSelector } from 'dva';
 
 const Index = () => {
+    const state = useSelector((state: any) => state.project);
+    const currentComponent = state.currentComponent;
     const containerRef = useRef<HTMLDivElement>(null);
+    const graphRef = useRef<Graph>();
 
     useEffect(() => {
-        const graph = new Graph({
-            container: containerRef.current!,
-            data: {
-                nodes: [
-                    {
-                        id: 'node-1',
-                        style: { x: 50, y: 100 },
-                    },
-                    {
-                        id: 'node-2',
-                        style: { x: 150, y: 100 },
-                    },
-                ],
-                edges: [{ id: 'edge-1', source: 'node-1', target: 'node-2' }],
-            },
-        });
+        if(!graphRef.current){
+            const graph = new Graph({
+                container: containerRef.current!,
+                data: currentComponent.data,
+            });
+            graphRef.current = graph;
 
-        graph.render();
+            graph.render();
+        }
+
+
+        return () => {
+            const graph = graphRef.current;
+            if (graph) {
+                graph.destroy();
+                graphRef.current = undefined;
+            }
+        }
     }, []);
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef} />
