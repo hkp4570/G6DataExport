@@ -5,10 +5,19 @@ export const customG6GraphData: G6GraphType = {
         nodes: [
             {
                 id: 'node-1',
-                style: { x: 50, y: 100 },
+                type: 'rect',
+                style: {
+                    x: 50,
+                    y: 100,
+                    size: [60, 30],
+
+                    labelText: '节点一',
+                    labelPlacement: 'center'
+                },
             },
             {
                 id: 'node-2',
+                type: 'rect',
                 style: { x: 150, y: 100 },
             },
         ],
