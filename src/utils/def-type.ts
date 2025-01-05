@@ -13,6 +13,8 @@ type NodeStyleOriginType = {
     labelFontSize: number,
     labelFontWeight: number | string,
     labelPlacement: 'left' | 'right' | 'top' | 'bottom' | 'left-top' | 'left-bottom' | 'right-top' | 'right-bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center'
+
+
 }
 type NodeType = {
     id: string,
