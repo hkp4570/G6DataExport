@@ -50,7 +50,7 @@ const RightPanel = () => {
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="数据" key="dataSetting" style={{height: '600px'}}>
                     <Editor
-                        value={currentComponent.data}
+                        value={currentComponent}
                         onChange={handleChangeJson}
                         mode={'code'}
                         navigationBar={false}

@@ -15,8 +15,12 @@ const Index = () => {
         if(!graphRef.current){
             const graph = new Graph({
                 container: containerRef.current!,
-                node:{}, // 默认节点
-                edge: {}, // 默认边
+                node:{
+                    ...currentComponent.defaultNode
+                }, // 默认节点
+                edge: {
+                    ...currentComponent.defaultEdge
+                }, // 默认边
                 data: currentComponent.data,
             });
             graphRef.current = graph;
