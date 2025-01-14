@@ -11,24 +11,22 @@ const Index = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const graphRef = useRef<Graph>();
 
+    const createG6 = () => {
+        const graph = new Graph({
+            container: containerRef.current!,
+            behaviors:['drag-canvas', 'zoom-canvas', 'drag-element', 'click-select'], // 交互
+            node:{}, // 默认节点
+            edge: {}, // 默认边
+            data: currentComponent.data,
+        });
+        graphRef.current = graph;
+
+        graph.render();
+    }
     useEffect(() => {
         if(!graphRef.current){
-            const graph = new Graph({
-                container: containerRef.current!,
-                node:{
-                    ...currentComponent.defaultNode
-                }, // 默认节点
-                edge: {
-                    ...currentComponent.defaultEdge
-                }, // 默认边
-                data: currentComponent.data,
-            });
-            graphRef.current = graph;
-
-            graph.render();
+           createG6();
         }
-
-
         return () => {
             const graph = graphRef.current;
             if (graph) {
@@ -37,6 +35,14 @@ const Index = () => {
             }
         }
     }, []);
+    useEffect(() => {
+        const graph = graphRef.current;
+        if (graph) {
+            graph.destroy();
+            graphRef.current = undefined;
+        }
+        createG6();
+    },[currentComponent.data.nodes])
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef} />
         <Drawer open mask={false} width={'600'} closeIcon={null}>

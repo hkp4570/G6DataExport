@@ -3,6 +3,7 @@ import styles from './index.less';
 import {Tabs} from 'antd';
 import {JsonEditor as Editor} from 'jsoneditor-react';
 import {useSelector} from 'dva';
+import BaseDataSetting from '../BaseDataSetting';
 import 'jsoneditor-react/es/editor.min.css';
 
 const RightPanel = () => {
@@ -44,9 +45,9 @@ const RightPanel = () => {
 
     return (
         <div className={styles.right_panel}>
-            <Tabs defaultActiveKey="dataSetting">
+            <Tabs defaultActiveKey="baseSetting">
                 <Tabs.TabPane tab="基础设置" key="baseSetting">
-                    基础设置
+                    <BaseDataSetting />
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="数据" key="dataSetting" style={{height: '600px'}}>
                     <Editor

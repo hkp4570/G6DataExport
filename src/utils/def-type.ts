@@ -6,36 +6,36 @@ type Ports = {
 type NodeStyleOriginType = {
     x: number,
     y: number,
-    z: number,
-    size: number | [number, number] | [Float32Array] | [number, number, number],
-    fill: string,
-    stroke: string,
-    lineWidth: number,
+    z?: number,
+    size: [number, number]
+    fill?: string,
+    stroke?: string,
+    lineWidth?: number,
 
-    label: boolean,
-    labelText: string,
-    labelFill: string,
-    labelFontSize: number,
-    labelFontWeight: number | string,
-    labelPlacement: 'left' | 'right' | 'top' | 'bottom' | 'left-top' | 'left-bottom' | 'right-top' | 'right-bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center'
+    label?: boolean,
+    labelText?: string,
+    labelFill?: string,
+    labelFontSize?: number,
+    labelFontWeight?: number | string,
+    labelPlacement?: 'left' | 'right' | 'top' | 'bottom' | 'left-top' | 'left-bottom' | 'right-top' | 'right-bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center'
 
-    port: boolean,
-    ports: Ports[],
-    portR: number,
-    portLineWidth: number,
-    portStroke: string
+    port?: boolean,
+    ports?: Ports[],
+    portR?: number,
+    portLineWidth?: number,
+    portStroke?: string
 
 }
-type NodeType = {
+export type NodeType = {
     id?: string,
     type?: string,
-    style: Partial<NodeStyleOriginType>,
+    style: NodeStyleOriginType,
 }
 type EdgeStyleOriginType = {
     startArrow: boolean,
     endArrow: boolean,
 }
-type EdgesType = {
+export type EdgeType = {
     id: string,
     source: string,
     target: string,
@@ -44,10 +44,10 @@ type EdgesType = {
 }
 
 export interface G6GraphType {
-    defaultNode: NodeType,
-    defaultEdge: EdgesType | unknown,
+    defaultNode?: NodeType,
+    defaultEdge?: EdgeType | unknown,
     data: {
         nodes: NodeType[]
-        edges: EdgesType[],
+        edges: EdgeType[],
     },
 }
