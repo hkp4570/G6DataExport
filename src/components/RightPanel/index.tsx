@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './index.less';
 import {Tabs, Button} from 'antd';
 import {JsonEditor as Editor} from 'jsoneditor-react';
@@ -9,7 +9,7 @@ import 'jsoneditor-react/es/editor.min.css';
 const RightPanel = () => {
     const dispatch = useDispatch();
     const currentComponent = useSelector((state: any) => state.project.currentComponent);
-
+    const [jsonData, setJsonData] = useState(currentComponent);
     const handleChangeJson = (data) => {
         console.log(data, 'data')
         dispatch({
@@ -72,6 +72,10 @@ const RightPanel = () => {
         }
     }, []);
 
+    useEffect(() => {
+        setJsonData(currentComponent);
+    },[currentComponent])
+
     return (
         <div className={styles.right_panel}>
             <Tabs defaultActiveKey="baseSetting">
@@ -81,7 +85,7 @@ const RightPanel = () => {
                 <Tabs.TabPane tab="数据" key="dataSetting" style={{height: '600px'}}>
                     <Button type='primary' style={{marginBottom: '16px'}} size='small' onClick={exportData}>导出数据</Button>
                     <Editor
-                        value={currentComponent}
+                        value={jsonData}
                         onChange={handleChangeJson}
                         mode={'code'}
                         navigationBar={false}

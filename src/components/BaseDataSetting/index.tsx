@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {Select, Row, Col, InputNumber, ColorPicker, Switch, Input} from 'antd';
 import type {GetProp, ColorPickerProps} from 'antd';
-import {nodeTypeOptions, fontWeightOptions, labelPlacementOptions} from '../../../initializationData/customG6GraphData';
+import {nodeTypeOptions, fontWeightOptions, labelPlacementOptions} from '@/assets/static';
 import {useSelector, useDispatch} from 'dva';
 
 type Color = GetProp<ColorPickerProps, 'value'>;
