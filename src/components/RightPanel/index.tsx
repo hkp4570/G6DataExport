@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import styles from './index.less';
-import {Tabs} from 'antd';
+import {Tabs, Button} from 'antd';
 import {JsonEditor as Editor} from 'jsoneditor-react';
 import {useSelector} from 'dva';
 import BaseDataSetting from '../BaseDataSetting';
@@ -36,6 +36,28 @@ const RightPanel = () => {
         }
     }
 
+    const exportData = () => {
+        // Step 2: Convert to JSON string
+        const jsonString = JSON.stringify(currentComponent, null, 2); // The second parameter 'null' and third parameter '2' are used for pretty printing
+    
+        // Step 3: Create a Blob object
+        const blob = new Blob([jsonString], { type: "application/json" });
+    
+        // Step 4: Create URL for Blob
+        const url = URL.createObjectURL(blob);
+    
+        // Step 5: Create a link and set the URL using the Blob URL
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json'; // The file name
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    
+        // Release URL object
+        URL.revokeObjectURL(url);
+    }
+
     useEffect(() => {
         document.addEventListener('keydown', handleKeyDown);
         return () => {
@@ -50,6 +72,7 @@ const RightPanel = () => {
                     <BaseDataSetting />
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="数据" key="dataSetting" style={{height: '600px'}}>
+                    <Button type='primary' style={{marginBottom: '16px'}} size='small' onClick={exportData}>导出数据</Button>
                     <Editor
                         value={currentComponent}
                         onChange={handleChangeJson}
