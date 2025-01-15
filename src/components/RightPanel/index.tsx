@@ -2,15 +2,22 @@ import React, {useEffect} from 'react';
 import styles from './index.less';
 import {Tabs, Button} from 'antd';
 import {JsonEditor as Editor} from 'jsoneditor-react';
-import {useSelector} from 'dva';
+import {useSelector, useDispatch} from 'dva';
 import BaseDataSetting from '../BaseDataSetting';
 import 'jsoneditor-react/es/editor.min.css';
 
 const RightPanel = () => {
+    const dispatch = useDispatch();
     const currentComponent = useSelector((state: any) => state.project.currentComponent);
 
     const handleChangeJson = (data) => {
         console.log(data, 'data')
+        dispatch({
+            type: 'project/setG6Data',
+            payload: {
+                value: data,
+            }
+        })
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {

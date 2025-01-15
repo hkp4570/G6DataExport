@@ -62,6 +62,14 @@ export default {
                     currentComponent: newCurrentComponent
                 }
             })
+        },
+        * setG6Data({payload}:any,{put}:any){
+            yield put({
+                type: 'setState',
+                payload:{
+                    currentComponent: payload.value
+                }
+            })
         }
     },
     reducers: {
