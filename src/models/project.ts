@@ -70,6 +70,38 @@ export default {
                     currentComponent: payload.value
                 }
             })
+        },
+        * setEdgeData({payload}:any,{put, select}:any):Generator<any,void,any>{
+            const currentComponent = yield select((state:any) => state.project.currentComponent);
+            const { type, value } = payload;
+            if(!type) return;
+            let edges = currentComponent.data.edges;
+            if(type.includes('-')){
+                const types = type.split('-');
+                edges = edges.map((item:EdgeType) => {
+                    return {
+                        ...item,
+                        [types[0]]:{
+                            ...item[types[0]],
+                            [types[1]]:value
+                        }
+                    }
+                });
+            }else{
+                edges = edges.map((item:EdgeType) => {
+                    return {
+                        ...item,
+                        [type]:value
+                    }
+                });
+            }
+            const newCurrentComponent = {...currentComponent, data:{...currentComponent.data, edges}};
+            yield put({
+                type: 'setState',
+                payload:{
+                    currentComponent:newCurrentComponent
+                }
+            })
         }
     },
     reducers: {

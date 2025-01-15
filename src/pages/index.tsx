@@ -42,7 +42,7 @@ const Index = () => {
             graphRef.current = undefined;
         }
         createG6();
-    },[currentComponent.data.nodes])
+    },[currentComponent.data.nodes, currentComponent.data.edges])
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef} />
         <Drawer open mask={false} width={'600'} closeIcon={null}>

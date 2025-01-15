@@ -34,6 +34,12 @@ export type NodeType = {
 type EdgeStyleOriginType = {
     startArrow: boolean,
     endArrow: boolean,
+    startArrowOffset: number,
+    startArrowSize: number,
+    startArrowType: string,
+    endArrowOffset: number,
+    endArrowSize: number,
+    endArrowType: string,
 }
 export type EdgeType = {
     id: string,

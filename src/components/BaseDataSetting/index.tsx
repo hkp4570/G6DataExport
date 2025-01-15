@@ -1,7 +1,13 @@
 import React, {useCallback, useMemo} from 'react';
 import {Select, Row, Col, InputNumber, ColorPicker, Switch, Input} from 'antd';
 import type {GetProp, ColorPickerProps} from 'antd';
-import {nodeTypeOptions, fontWeightOptions, labelPlacementOptions} from '@/assets/static';
+import {
+    nodeTypeOptions,
+    fontWeightOptions,
+    labelPlacementOptions,
+    edgeTypeOptions,
+    edgeArrowTypeOptions
+} from '@/assets/static';
 import {useSelector, useDispatch} from 'dva';
 
 type Color = GetProp<ColorPickerProps, 'value'>;
@@ -10,10 +16,11 @@ const BaseDataSetting = () => {
     const currentComponent = useSelector((state: any) => state.project.currentComponent);
     const currentNode = useSelector((state: any) => state.project.currentNode);
 
-    const compNode = useMemo(() => {
-        const {data: {nodes}} = currentComponent;
+    const {firstNodes:compNode, firstEdges: compEdge} = useMemo(() => {
+        const {data: {nodes, edges}} = currentComponent;
         const firstNodes = nodes[0];
-        return firstNodes;
+        const firstEdges = edges[0];
+        return {firstNodes, firstEdges};
     }, [currentComponent])
 
     const handleNodeTypeChange = (event: string) => {
@@ -79,12 +86,21 @@ const BaseDataSetting = () => {
             }
         })
     }
-    const handleNodeLabelFontWeightChange = (type:string, event:number | string) => {
+    const handleNodeLabelFontWeightChange = (type: string, event: number | string) => {
         dispatch({
             type: 'project/setDefaultNodeData',
             payload: {
                 type,
                 value: event
+            }
+        })
+    }
+    const handleEdgeChange = (type:string, event:any) => {
+        dispatch({
+            type: 'project/setEdgeData',
+            payload: {
+                type,
+                value: event,
             }
         })
     }
@@ -179,7 +195,7 @@ const BaseDataSetting = () => {
                 />
             </Col>
         </Row>
-        <Row align={'middle'} style={{ marginBottom: '16px' }}>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={6}>标签相对图形位置：</Col>
             <Col span={6}>
                 <Select
@@ -187,6 +203,85 @@ const BaseDataSetting = () => {
                     style={{width: 200}}
                     onChange={event => handleNodeLabelFontWeightChange('labelPlacement', event)}
                     options={labelPlacementOptions}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={3}>边类型：</Col>
+            <Col span={5}>
+                <Select
+                    defaultValue={compEdge.type || 'line'}
+                    style={{width: 200}}
+                    onChange={event => handleEdgeChange('type', event)}
+                    options={edgeTypeOptions}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={4}>起始箭头：</Col>
+            <Col span={5}>
+                <Switch defaultChecked={compEdge.style.startArrow || false}
+                        onChange={(event) => handleEdgeChange('style-startArrow', event)}/>
+            </Col>
+            <Col span={5}>起始箭头偏移量：</Col>
+            <Col span={5}>
+                <InputNumber
+                    onChange={(event) => handleEdgeChange('style-startArrowOffset', event)}
+                    min={0}
+                    defaultValue={compEdge.style.startArrowOffset || 0}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={3}>箭头大小：</Col>
+            <Col span={5}>
+                <InputNumber
+                    onChange={(event) => handleEdgeChange('style-startArrowSize', event)}
+                    min={0}
+                    defaultValue={compEdge.style.startArrowSize || 8}
+                />
+            </Col>
+            <Col span={3}>箭头类型：</Col>
+            <Col span={5}>
+                <Select
+                    defaultValue={compEdge.style.startArrowType || 'triangle'}
+                    style={{width: 200}}
+                    onChange={event => handleEdgeChange('style-startArrowType', event)}
+                    options={edgeArrowTypeOptions}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={4}>终点箭头：</Col>
+            <Col span={5}>
+                <Switch defaultChecked={compEdge.style.endArrow || false}
+                        onChange={(event) => handleEdgeChange('style-endArrow', event)}/>
+            </Col>
+            <Col span={5}>终点箭头偏移量：</Col>
+            <Col span={5}>
+                <InputNumber
+                    onChange={(event) => handleEdgeChange('style-endArrowOffset', event)}
+                    min={1}
+                    defaultValue={compEdge.style.endArrowOffset || 0}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={3}>箭头大小：</Col>
+            <Col span={5}>
+                <InputNumber
+                    onChange={(event) => handleEdgeChange('style-endArrowSize', event)}
+                    min={1}
+                    defaultValue={compEdge.style.endArrowSize || 8}
+                />
+            </Col>
+            <Col span={3}>箭头类型：</Col>
+            <Col span={5}>
+                <Select
+                    defaultValue={compEdge.style.endArrowType || 'triangle'}
+                    style={{width: 200}}
+                    onChange={event => handleEdgeChange('style-endArrowType', event)}
+                    options={edgeArrowTypeOptions}
                 />
             </Col>
         </Row>
