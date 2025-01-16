@@ -40,6 +40,17 @@ type EdgeStyleOriginType = {
     endArrowOffset: number,
     endArrowSize: number,
     endArrowType: string,
+    stroke: string,
+    lineWidth: number,
+    lineDash: number,
+
+    label: boolean,
+    labelText: string,
+    labelAutoRotate: boolean,
+    labelFill: string,
+    labelPlacement: number | string,
+    labelOffsetX: number,
+    labelOffsetY: number,
 }
 export type EdgeType = {
     id: string,

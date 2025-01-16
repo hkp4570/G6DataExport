@@ -49,3 +49,9 @@ export const edgeArrowTypeOptions = [
     {value: 'triangleRect', label: 'triangleRect'},
     {value: 'simple', label: 'simple'},
 ]
+
+export const edgeLabelPlacement = [
+    { value: 'start', label: '起点' },
+    { value: 'center', label: '中间' },
+    { value: 'end', label: '终点' },
+]

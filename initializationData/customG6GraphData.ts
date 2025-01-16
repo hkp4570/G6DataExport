@@ -16,8 +16,8 @@ export const customG6GraphData: G6GraphType = {
           "labelPlacement": "center",
           "ports": [
             {
-              "placement": "bottom"
-            }
+              "placement": "bottom",
+            },
           ],
           "lineWidth": 1,
           "labelFontWeight": 500

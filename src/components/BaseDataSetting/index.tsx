@@ -1,27 +1,28 @@
-import React, {useCallback, useMemo} from 'react';
-import {Select, Row, Col, InputNumber, ColorPicker, Switch, Input} from 'antd';
+import React, {useCallback, useMemo, useState} from 'react';
+import {Select, Row, Col, InputNumber, ColorPicker, Switch, Input, Radio} from 'antd';
 import type {GetProp, ColorPickerProps} from 'antd';
 import {
     nodeTypeOptions,
     fontWeightOptions,
     labelPlacementOptions,
     edgeTypeOptions,
-    edgeArrowTypeOptions
+    edgeArrowTypeOptions, edgeLabelPlacement
 } from '@/assets/static';
 import {useSelector, useDispatch} from 'dva';
+import {debounce} from "@/utils";
 
 type Color = GetProp<ColorPickerProps, 'value'>;
 const BaseDataSetting = () => {
     const dispatch = useDispatch();
     const currentComponent = useSelector((state: any) => state.project.currentComponent);
     const currentNode = useSelector((state: any) => state.project.currentNode);
-
-    const {firstNodes:compNode, firstEdges: compEdge} = useMemo(() => {
+    const {firstNodes: compNode, firstEdges: compEdge} = useMemo(() => {
         const {data: {nodes, edges}} = currentComponent;
         const firstNodes = nodes[0];
         const firstEdges = edges[0];
         return {firstNodes, firstEdges};
     }, [currentComponent])
+    const [edgeLabelType, setEdgeLabelType] = useState<'default' | 'percentage'>(typeof compEdge.style.labelPlacement === 'string' ? 'default' : 'percentage');
 
     const handleNodeTypeChange = (event: string) => {
         dispatch({
@@ -95,7 +96,7 @@ const BaseDataSetting = () => {
             }
         })
     }
-    const handleEdgeChange = (type:string, event:any) => {
+    const handleEdgeChange = (type: string, event: any) => {
         dispatch({
             type: 'project/setEdgeData',
             payload: {
@@ -104,7 +105,8 @@ const BaseDataSetting = () => {
             }
         })
     }
-
+    // TODO: 修改文本时可使用防抖
+    const debounceHandleEdgeChange = debounce(handleEdgeChange, 1000);
     return <div>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>节点类型：</Col>
@@ -237,7 +239,7 @@ const BaseDataSetting = () => {
             <Col span={5}>
                 <InputNumber
                     onChange={(event) => handleEdgeChange('style-startArrowSize', event)}
-                    min={0}
+                    min={1}
                     defaultValue={compEdge.style.startArrowSize || 8}
                 />
             </Col>
@@ -261,7 +263,7 @@ const BaseDataSetting = () => {
             <Col span={5}>
                 <InputNumber
                     onChange={(event) => handleEdgeChange('style-endArrowOffset', event)}
-                    min={1}
+                    min={0}
                     defaultValue={compEdge.style.endArrowOffset || 0}
                 />
             </Col>
@@ -283,6 +285,108 @@ const BaseDataSetting = () => {
                     onChange={event => handleEdgeChange('style-endArrowType', event)}
                     options={edgeArrowTypeOptions}
                 />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={3}>边颜色：</Col>
+            <Col span={5}>
+                <ColorPicker defaultValue={compEdge.style.stroke || '#000000'} showText
+                             onChange={(event) => handleEdgeChange('style-stroke', event.toHexString())}/>
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={3}>边宽度：</Col>
+            <Col span={5}>
+                <InputNumber
+                    onChange={(event) => handleEdgeChange('style-lineWidth', event)}
+                    min={1}
+                    defaultValue={compEdge.style.lineWidth || 1}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={5}>虚线偏移量：</Col>
+            <Col span={5}>
+                <InputNumber
+                    onChange={(event) => handleEdgeChange('style-lineDash', event)}
+                    min={0}
+                    defaultValue={compEdge.style.lineDash || 0}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={4}>标签显隐：</Col>
+            <Col span={5}>
+                <Switch defaultChecked={compEdge.style.label || true}
+                        onChange={(event) => handleEdgeChange('style-label', event)}/>
+            </Col>
+            <Col span={4}>标签文本：</Col>
+            <Col span={5}>
+                <Input placeholder="标签文本" style={{width: 120}}
+                       onChange={(event) => handleEdgeChange('style-labelText', event.target.value)}/>
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={4}>自动旋转：</Col>
+            <Col span={5}>
+                <Switch defaultChecked={compEdge.style.labelAutoRotate || true}
+                        onChange={(event) => handleEdgeChange('style-labelAutoRotate', event)}/>
+            </Col>
+            <Col span={4}>标签颜色：</Col>
+            <Col span={5}>
+                <ColorPicker defaultValue={compEdge.style.labelFill || '#000000'} showText
+                             onChange={(event) => handleEdgeChange('style-labelFill', event.toHexString())}/>
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={4}>字体大小：</Col>
+            <Col span={5}>
+                <InputNumber
+                    onChange={(event) => handleEdgeChange('style-labelFontSize', event)}
+                    min={6}
+                    defaultValue={compEdge.style.labelFontSize || 12}
+                />
+            </Col>
+            <Col span={4}>字体粗细：</Col>
+            <Col span={5}>
+                <Select
+                    defaultValue={compEdge.style.labelFontWeight || 400}
+                    style={{width: 200}}
+                    onChange={event => handleEdgeChange('style-labelFontWeight', event)}
+                    options={fontWeightOptions}
+                />
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={4}>标签位置：</Col>
+            <Col span={5}>
+                <Radio.Group defaultValue={edgeLabelType} size="small"
+                             onChange={event => setEdgeLabelType(event.target.value)}>
+                    <Radio.Button value="default">默认</Radio.Button>
+                    <Radio.Button value="percentage">百分比</Radio.Button>
+                </Radio.Group>
+            </Col>
+            <Col span={10}>
+                {
+                    edgeLabelType === 'default' ? (<Select
+                        defaultValue={(typeof compEdge.style.labelPlacement) === 'string' ? compEdge.style.labelPlacement : 'center'}
+                        style={{width: 200}}
+                        onChange={event => handleEdgeChange('style-labelPlacement', event)}
+                        options={edgeLabelPlacement}
+                    />) : (<InputNumber defaultValue={(typeof compEdge.style.labelPlacement) === 'number' ? compEdge.style.labelPlacement : 0.5} min={0} max={1} step={0.1}
+                                        onChange={event => handleEdgeChange('style-labelPlacement', event)}/>)
+                }
+            </Col>
+        </Row>
+        <Row align={'middle'} style={{marginBottom: '16px'}}>
+            <Col span={4}>偏移量：</Col>
+            <Col span={5}>
+                <InputNumber defaultValue={compEdge.style.labelOffsetX || 0} min={0} placeholder={'X轴'}
+                             onChange={event => handleEdgeChange('style-labelOffsetX', event)}/>
+            </Col>
+            <Col>
+                <InputNumber defaultValue={compEdge.style.labelOffsetY || 0} min={0} placeholder={'Y轴'}
+                             onChange={event => handleEdgeChange('style-labelOffsetY', event)}/>
             </Col>
         </Row>
     </div>
