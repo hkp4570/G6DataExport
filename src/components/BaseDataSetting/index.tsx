@@ -1,5 +1,5 @@
-import React, { useMemo} from 'react';
-import {Select, Row, Col, InputNumber, ColorPicker, Switch, Input, Radio} from 'antd';
+import React, {useMemo} from 'react';
+import {Select, Row, Col, InputNumber, ColorPicker, Switch, Input} from 'antd';
 import type {GetProp, ColorPickerProps} from 'antd';
 import {
     nodeTypeOptions,
@@ -16,6 +16,7 @@ const BaseDataSetting = () => {
     const dispatch = useDispatch();
     const currentComponent = useSelector((state: any) => state.project.currentComponent);
     const currentNode = useSelector((state: any) => state.project.currentNode);
+    const currentEdge = useSelector((state: any) => state.project.currentEdge);
     const {firstNodes: compNode, firstEdges: compEdge} = useMemo(() => {
         const {data: {nodes, edges}} = currentComponent;
         const firstNodes = nodes[0];

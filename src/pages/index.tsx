@@ -1,21 +1,43 @@
-import React, {useEffect, useRef} from 'react';
-import { Graph } from '@antv/g6';
-import type { NodeData } from '@antv/g6';
+import React, {useEffect, useRef, useState} from 'react';
+import { Graph, NodeEvent, EdgeEvent } from '@antv/g6';
 import { Drawer } from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
-import { useSelector } from 'dva';
+import { useSelector, useDispatch } from 'dva';
 
 const Index = () => {
     const state = useSelector((state: any) => state.project);
     const currentComponent = state.currentComponent;
-    const containerRef = useRef<HTMLDivElement>(null);
+    const dispatch = useDispatch();
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const graphRef = useRef<Graph>();
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
+    const handleNodeEvent = (event) => {
+        const id = event.target.id;
+        setDrawerOpen(true);
+        dispatch({
+            type:'project/setCurrentNode',
+            payload: {
+                id
+            }
+        })
+    }
+    const handleEdgeEvent = (event) => {
+        const id = event.target.id;
+        setDrawerOpen(true);
+        dispatch({
+            type:'project/setCurrentEdge',
+            payload: {
+                id
+            }
+        })
+    }
     const createG6 = () => {
         const graph = new Graph({
             container: containerRef.current!,
-            behaviors:['drag-canvas', 'zoom-canvas', 'drag-element', 'click-select'], // 交互
+            // 'drag-canvas','zoom-canvas', 'drag-element', 'click-select',
+            behaviors: [{ type: 'click-select', multiple: true, trigger: ['shift'] }, 'drag-element'],
             node: {
                 type: (d:any) => d.data.type,
                 style: {
@@ -73,6 +95,8 @@ const Index = () => {
             }, // 默认边
             data: currentComponent.data,
         });
+        graph.on(NodeEvent.CLICK, handleNodeEvent);
+        graph.on(EdgeEvent.CLICK, handleEdgeEvent);
         graphRef.current = graph;
         graph.render();
     }
@@ -84,6 +108,7 @@ const Index = () => {
             const graph = graphRef.current;
             if (graph) {
                 graph.destroy();
+                graph.off();
                 graphRef.current = undefined;
             }
         }
@@ -92,13 +117,14 @@ const Index = () => {
         const graph = graphRef.current;
         if (graph) {
             graph.destroy();
+            graph.off();
             graphRef.current = undefined;
         }
         createG6();
     },[currentComponent.data.nodes, currentComponent.data.edges])
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef} />
-        <Drawer open mask={false} width={'600'} closeIcon={null}>
+        <Drawer open={drawerOpen} mask={false} width={'600'} closeIcon={null}>
             <RightPanel/>
         </Drawer>
     </div>
