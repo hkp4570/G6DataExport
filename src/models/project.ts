@@ -22,36 +22,27 @@ export default {
         currentEdge: null,
     },
     effects: {
-        * setDefaultNodeData({payload}:any,{put, select}:any):Generator<any, void, any>{
+        * setNodeData({payload}:any,{put, select}:any):Generator<any, void, any>{
             const currentComponent = yield select((state:any) => state.project.currentComponent);
             const { type, value } = payload;
             if(!type) return;
             let nodes = currentComponent.data.nodes;
-            if(type === 'width' || type === 'height'){
-                nodes = currentComponent.data.nodes.map((item:NodeType) => {
+            if(type.includes('-')){
+                const types = type.split('-');
+                nodes = nodes.map((item:EdgeType) => {
                     return {
                         ...item,
-                        style:{
-                            ...item.style,
-                            size: type === 'width' ? [value, item.style.size[1]] : [item.style.size[0], value],
+                        [types[0]]:{
+                            ...item[types[0]],
+                            [types[1]]:value
                         }
-                    }
-                });
-            } else if (type === 'type'){
-                nodes = currentComponent.data.nodes.map((item:NodeType) => {
-                    return {
-                        ...item,
-                        [type]: value,
                     }
                 });
             }else{
-                nodes = currentComponent.data.nodes.map((item:NodeType) => {
+                nodes = nodes.map((item:EdgeType) => {
                     return {
                         ...item,
-                        style:{
-                            ...item.style,
-                            [type]:value
-                        }
+                        [type]:value
                     }
                 });
             }

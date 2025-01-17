@@ -4,6 +4,7 @@ type Ports = {
     fill?: string,
 }
 type NodeStyleOriginType = {
+    type?: string,
     x: number,
     y: number,
     z?: number,
@@ -28,10 +29,10 @@ type NodeStyleOriginType = {
 }
 export type NodeType = {
     id?: string,
-    type?: string,
-    style: NodeStyleOriginType,
+    data: NodeStyleOriginType,
 }
 type EdgeStyleOriginType = {
+    type?: string,
     startArrow: boolean,
     endArrow: boolean,
     startArrowOffset: number,
@@ -46,9 +47,11 @@ type EdgeStyleOriginType = {
 
     label: boolean,
     labelText: string,
+    labelFontSize: number,
+    labelFontWeight: number,
     labelAutoRotate: boolean,
     labelFill: string,
-    labelPlacement: number | string,
+    labelPlacement: number,
     labelOffsetX: number,
     labelOffsetY: number,
 }
@@ -56,8 +59,7 @@ export type EdgeType = {
     id: string,
     source: string,
     target: string,
-    type?: string,
-    style?:Partial<EdgeStyleOriginType>
+    data?:Partial<EdgeStyleOriginType>
 }
 
 export interface G6GraphType {

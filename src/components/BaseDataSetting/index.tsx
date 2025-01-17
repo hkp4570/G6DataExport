@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, { useMemo} from 'react';
 import {Select, Row, Col, InputNumber, ColorPicker, Switch, Input, Radio} from 'antd';
 import type {GetProp, ColorPickerProps} from 'antd';
 import {
@@ -22,77 +22,13 @@ const BaseDataSetting = () => {
         const firstEdges = edges[0];
         return {firstNodes, firstEdges};
     }, [currentComponent])
-    const [edgeLabelType, setEdgeLabelType] = useState<'default' | 'percentage'>(typeof compEdge.style.labelPlacement === 'string' ? 'default' : 'percentage');
 
-    const handleNodeTypeChange = (event: string) => {
+    const handleNodeChange = (type: string, event: any) => {
         dispatch({
-            type: 'project/setDefaultNodeData',
-            payload: {
-                type: 'type',
-                value: event,
-            }
-        })
-    }
-    const handleNodeSizeChange = useCallback((type: string, event: number | null) => {
-        dispatch({
-            type: 'project/setDefaultNodeData',
+            type: 'project/setNodeData',
             payload: {
                 type,
                 value: event,
-            }
-        })
-    }, [])
-    const handleNodeColorChange = (type: string, color: Color) => {
-        dispatch({
-            type: 'project/setDefaultNodeData',
-            payload: {
-                type,
-                value: color.toHexString(),
-            }
-        })
-    }
-    const handleNodeLineWidthChange = (type: string, event: number | null) => {
-        dispatch({
-            type: 'project/setDefaultNodeData',
-            payload: {
-                type,
-                value: event
-            }
-        })
-    }
-    const handleNodeLabelChange = (type: string, event: boolean) => {
-        dispatch({
-            type: 'project/setDefaultNodeData',
-            payload: {
-                type,
-                value: event
-            }
-        })
-    }
-    const handleNodeLabelTextChange = (type: string, event: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch({
-            type: 'project/setDefaultNodeData',
-            payload: {
-                type,
-                value: event.target.value
-            }
-        })
-    }
-    const handleNodeLabelFontSizeChange = (type: string, event: number | null) => {
-        dispatch({
-            type: 'project/setDefaultNodeData',
-            payload: {
-                type,
-                value: event
-            }
-        })
-    }
-    const handleNodeLabelFontWeightChange = (type: string, event: number | string) => {
-        dispatch({
-            type: 'project/setDefaultNodeData',
-            payload: {
-                type,
-                value: event
             }
         })
     }
@@ -112,9 +48,9 @@ const BaseDataSetting = () => {
             <Col span={4}>节点类型：</Col>
             <Col span={15}>
                 <Select
-                    defaultValue={compNode.type}
+                    defaultValue={compNode.data?.type}
                     style={{width: 120}}
-                    onChange={handleNodeTypeChange}
+                    onChange={event => handleNodeChange('data-type', event)}
                     options={nodeTypeOptions}
                 />
             </Col>
@@ -123,66 +59,67 @@ const BaseDataSetting = () => {
             <Col span={4}>节点大小：</Col>
             <Col span={15}>
                 <InputNumber
-                    onChange={(event) => handleNodeSizeChange('width', event)}
+                    onChange={(event) => handleNodeChange('data-size', [event, compNode.data?.size[1]])}
                     min={0}
                     placeholder='宽'
                     style={{marginRight: '8px'}}
-                    defaultValue={compNode.style.size[0]}
+                    defaultValue={compNode.data?.size[0]}
                 />
                 <InputNumber
-                    onChange={(event) => handleNodeSizeChange('height', event)}
+                    onChange={(event) => handleNodeChange('data-size', [compNode.data?.size[0], event])}
                     min={0}
                     placeholder='高'
-                    defaultValue={compNode.style.size[1]}
+                    defaultValue={compNode.data?.size[1]}
                 />
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={3}>填充色：</Col>
             <Col span={5}>
-                <ColorPicker defaultValue={compNode.style.fill || '#1783FF'} showText
-                             onChange={(event) => handleNodeColorChange('fill', event)}/>
+                <ColorPicker defaultValue={compNode.data.fill || '#1783FF'} showText
+                             onChange={(event) => handleNodeChange('data-fill', event.toHexString())}/>
             </Col>
             <Col span={3}>描边色：</Col>
             <Col span={5}>
-                <ColorPicker defaultValue={compNode.style.stroke || '#1783FF'} showText
-                             onChange={(event) => handleNodeColorChange('stroke', event)}/>
+                <ColorPicker defaultValue={compNode.data.stroke || '#1783FF'} showText
+                             onChange={(event) => handleNodeChange('data-stroke', event.toHexString())}/>
             </Col>
             <Col span={4}>描边宽度：</Col>
             <Col span={4}>
                 <InputNumber
-                    onChange={(event) => handleNodeLineWidthChange('lineWidth', event)}
+                    onChange={(event) => handleNodeChange('data-lineWidth', event)}
                     min={0}
-                    defaultValue={compNode.style.lineWidth}
+                    defaultValue={compNode.data.lineWidth}
                 />
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>标签显隐：</Col>
             <Col span={4}>
-                <Switch defaultChecked={compNode.style.label || true}
-                        onChange={(event) => handleNodeLabelChange('label', event)}/>
+                <Switch defaultChecked={compNode.data.label || true}
+                        onChange={(event) => handleNodeChange('data-label', event)}/>
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>标签文本：</Col>
             <Col span={4}>
                 <Input placeholder="标签文本" style={{width: 120}}
-                       onChange={(event) => handleNodeLabelTextChange('labelText', event)}/>
+                       defaultValue={compNode.data.labelText}
+                       onChange={(event) => handleNodeChange('data-labelText', event.target.value)}/>
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>标签颜色：</Col>
             <Col span={5}>
-                <ColorPicker defaultValue={compNode.style.labelFill || '#000000'} showText
-                             onChange={(event) => handleNodeColorChange('labelFill', event)}/>
+                <ColorPicker defaultValue={compNode.data.labelFill || '#000000'} showText
+                             onChange={(event) => handleNodeChange('data-labelFill', event.toHexString())}/>
             </Col>
             <Col span={5}>标签字体大小：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleNodeLabelFontSizeChange('labelFontSize', event)}
+                    onChange={(event) => handleNodeChange('data-labelFontSize', event)}
                     min={6}
-                    defaultValue={compNode.style.labelFontSize || 12}
+                    defaultValue={compNode.data.labelFontSize || 12}
                 />
             </Col>
         </Row>
@@ -190,9 +127,9 @@ const BaseDataSetting = () => {
             <Col span={5}>标签字体粗细：</Col>
             <Col span={5}>
                 <Select
-                    defaultValue={compNode.style.labelFontWeight || 400}
+                    defaultValue={compNode.data.labelFontWeight || 400}
                     style={{width: 200}}
-                    onChange={event => handleNodeLabelFontWeightChange('labelFontWeight', event)}
+                    onChange={event => handleNodeChange('data-labelFontWeight', event)}
                     options={fontWeightOptions}
                 />
             </Col>
@@ -201,9 +138,9 @@ const BaseDataSetting = () => {
             <Col span={6}>标签相对图形位置：</Col>
             <Col span={6}>
                 <Select
-                    defaultValue={compNode.style.labelPlacement || 'center'}
+                    defaultValue={compNode.data.labelPlacement || 'center'}
                     style={{width: 200}}
-                    onChange={event => handleNodeLabelFontWeightChange('labelPlacement', event)}
+                    onChange={event => handleNodeChange('data-labelPlacement', event)}
                     options={labelPlacementOptions}
                 />
             </Col>
@@ -214,7 +151,7 @@ const BaseDataSetting = () => {
                 <Select
                     defaultValue={compEdge.type || 'line'}
                     style={{width: 200}}
-                    onChange={event => handleEdgeChange('type', event)}
+                    onChange={event => handleEdgeChange('data-type', event)}
                     options={edgeTypeOptions}
                 />
             </Col>
@@ -222,15 +159,15 @@ const BaseDataSetting = () => {
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>起始箭头：</Col>
             <Col span={5}>
-                <Switch defaultChecked={compEdge.style.startArrow || false}
-                        onChange={(event) => handleEdgeChange('style-startArrow', event)}/>
+                <Switch defaultChecked={compEdge.data.startArrow || false}
+                        onChange={(event) => handleEdgeChange('data-startArrow', event)}/>
             </Col>
             <Col span={5}>起始箭头偏移量：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleEdgeChange('style-startArrowOffset', event)}
+                    onChange={(event) => handleEdgeChange('data-startArrowOffset', event)}
                     min={0}
-                    defaultValue={compEdge.style.startArrowOffset || 0}
+                    defaultValue={compEdge.data.startArrowOffset || 0}
                 />
             </Col>
         </Row>
@@ -238,17 +175,17 @@ const BaseDataSetting = () => {
             <Col span={3}>箭头大小：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleEdgeChange('style-startArrowSize', event)}
+                    onChange={(event) => handleEdgeChange('data-startArrowSize', event)}
                     min={1}
-                    defaultValue={compEdge.style.startArrowSize || 8}
+                    defaultValue={compEdge.data.startArrowSize || 8}
                 />
             </Col>
             <Col span={3}>箭头类型：</Col>
             <Col span={5}>
                 <Select
-                    defaultValue={compEdge.style.startArrowType || 'triangle'}
+                    defaultValue={compEdge.data.startArrowType || 'triangle'}
                     style={{width: 200}}
-                    onChange={event => handleEdgeChange('style-startArrowType', event)}
+                    onChange={event => handleEdgeChange('data-startArrowType', event)}
                     options={edgeArrowTypeOptions}
                 />
             </Col>
@@ -256,15 +193,15 @@ const BaseDataSetting = () => {
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>终点箭头：</Col>
             <Col span={5}>
-                <Switch defaultChecked={compEdge.style.endArrow || false}
-                        onChange={(event) => handleEdgeChange('style-endArrow', event)}/>
+                <Switch defaultChecked={compEdge.data.endArrow || false}
+                        onChange={(event) => handleEdgeChange('data-endArrow', event)}/>
             </Col>
             <Col span={5}>终点箭头偏移量：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleEdgeChange('style-endArrowOffset', event)}
+                    onChange={(event) => handleEdgeChange('data-endArrowOffset', event)}
                     min={0}
-                    defaultValue={compEdge.style.endArrowOffset || 0}
+                    defaultValue={compEdge.data.endArrowOffset || 0}
                 />
             </Col>
         </Row>
@@ -272,17 +209,17 @@ const BaseDataSetting = () => {
             <Col span={3}>箭头大小：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleEdgeChange('style-endArrowSize', event)}
+                    onChange={(event) => handleEdgeChange('data-endArrowSize', event)}
                     min={1}
-                    defaultValue={compEdge.style.endArrowSize || 8}
+                    defaultValue={compEdge.data.endArrowSize || 8}
                 />
             </Col>
             <Col span={3}>箭头类型：</Col>
             <Col span={5}>
                 <Select
-                    defaultValue={compEdge.style.endArrowType || 'triangle'}
+                    defaultValue={compEdge.data.endArrowType || 'triangle'}
                     style={{width: 200}}
-                    onChange={event => handleEdgeChange('style-endArrowType', event)}
+                    onChange={event => handleEdgeChange('data-endArrowType', event)}
                     options={edgeArrowTypeOptions}
                 />
             </Col>
@@ -290,17 +227,17 @@ const BaseDataSetting = () => {
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={3}>边颜色：</Col>
             <Col span={5}>
-                <ColorPicker defaultValue={compEdge.style.stroke || '#000000'} showText
-                             onChange={(event) => handleEdgeChange('style-stroke', event.toHexString())}/>
+                <ColorPicker defaultValue={compEdge.data.stroke || '#000000'} showText
+                             onChange={(event) => handleEdgeChange('data-stroke', event.toHexString())}/>
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={3}>边宽度：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleEdgeChange('style-lineWidth', event)}
+                    onChange={(event) => handleEdgeChange('data-lineWidth', event)}
                     min={1}
-                    defaultValue={compEdge.style.lineWidth || 1}
+                    defaultValue={compEdge.data.lineWidth || 1}
                 />
             </Col>
         </Row>
@@ -308,85 +245,73 @@ const BaseDataSetting = () => {
             <Col span={5}>虚线偏移量：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleEdgeChange('style-lineDash', event)}
+                    onChange={(event) => handleEdgeChange('data-lineDash', event)}
                     min={0}
-                    defaultValue={compEdge.style.lineDash || 0}
+                    defaultValue={compEdge.data.lineDash || 0}
                 />
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>标签显隐：</Col>
             <Col span={5}>
-                <Switch defaultChecked={compEdge.style.label || true}
-                        onChange={(event) => handleEdgeChange('style-label', event)}/>
+                <Switch defaultChecked={compEdge.data.label || true}
+                        onChange={(event) => handleEdgeChange('data-label', event)}/>
             </Col>
             <Col span={4}>标签文本：</Col>
             <Col span={5}>
                 <Input placeholder="标签文本" style={{width: 120}}
-                       onChange={(event) => handleEdgeChange('style-labelText', event.target.value)}/>
+                       onChange={(event) => handleEdgeChange('data-labelText', event.target.value)}/>
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>自动旋转：</Col>
             <Col span={5}>
-                <Switch defaultChecked={compEdge.style.labelAutoRotate || true}
-                        onChange={(event) => handleEdgeChange('style-labelAutoRotate', event)}/>
+                <Switch defaultChecked={compEdge.data.labelAutoRotate || true}
+                        onChange={(event) => handleEdgeChange('data-labelAutoRotate', event)}/>
             </Col>
             <Col span={4}>标签颜色：</Col>
             <Col span={5}>
-                <ColorPicker defaultValue={compEdge.style.labelFill || '#000000'} showText
-                             onChange={(event) => handleEdgeChange('style-labelFill', event.toHexString())}/>
+                <ColorPicker defaultValue={compEdge.data.labelFill || '#000000'} showText
+                             onChange={(event) => handleEdgeChange('data-labelFill', event.toHexString())}/>
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>字体大小：</Col>
             <Col span={5}>
                 <InputNumber
-                    onChange={(event) => handleEdgeChange('style-labelFontSize', event)}
+                    onChange={(event) => handleEdgeChange('data-labelFontSize', event)}
                     min={6}
-                    defaultValue={compEdge.style.labelFontSize || 12}
+                    defaultValue={compEdge.data.labelFontSize || 12}
                 />
             </Col>
             <Col span={4}>字体粗细：</Col>
             <Col span={5}>
                 <Select
-                    defaultValue={compEdge.style.labelFontWeight || 400}
+                    defaultValue={compEdge.data.labelFontWeight || 400}
                     style={{width: 200}}
-                    onChange={event => handleEdgeChange('style-labelFontWeight', event)}
+                    onChange={event => handleEdgeChange('data-labelFontWeight', event)}
                     options={fontWeightOptions}
                 />
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>标签位置：</Col>
-            <Col span={5}>
-                <Radio.Group defaultValue={edgeLabelType} size="small"
-                             onChange={event => setEdgeLabelType(event.target.value)}>
-                    <Radio.Button value="default">默认</Radio.Button>
-                    <Radio.Button value="percentage">百分比</Radio.Button>
-                </Radio.Group>
-            </Col>
             <Col span={10}>
-                {
-                    edgeLabelType === 'default' ? (<Select
-                        defaultValue={(typeof compEdge.style.labelPlacement) === 'string' ? compEdge.style.labelPlacement : 'center'}
-                        style={{width: 200}}
-                        onChange={event => handleEdgeChange('style-labelPlacement', event)}
-                        options={edgeLabelPlacement}
-                    />) : (<InputNumber defaultValue={(typeof compEdge.style.labelPlacement) === 'number' ? compEdge.style.labelPlacement : 0.5} min={0} max={1} step={0.1}
-                                        onChange={event => handleEdgeChange('style-labelPlacement', event)}/>)
-                }
+                <InputNumber
+                    defaultValue={compEdge.data.labelPlacement || 0.5}
+                    min={0} max={1} step={0.1}
+                    onChange={event => handleEdgeChange('data-labelPlacement', event)}/>
             </Col>
         </Row>
         <Row align={'middle'} style={{marginBottom: '16px'}}>
             <Col span={4}>偏移量：</Col>
             <Col span={5}>
-                <InputNumber defaultValue={compEdge.style.labelOffsetX || 0} min={0} placeholder={'X轴'}
-                             onChange={event => handleEdgeChange('style-labelOffsetX', event)}/>
+                <InputNumber defaultValue={compEdge.data.labelOffsetX || 0} min={0} placeholder={'X轴'}
+                             onChange={event => handleEdgeChange('data-labelOffsetX', event)}/>
             </Col>
             <Col>
-                <InputNumber defaultValue={compEdge.style.labelOffsetY || 0} min={0} placeholder={'Y轴'}
-                             onChange={event => handleEdgeChange('style-labelOffsetY', event)}/>
+                <InputNumber defaultValue={compEdge.data.labelOffsetY || 0} min={0} placeholder={'Y轴'}
+                             onChange={event => handleEdgeChange('data-labelOffsetY', event)}/>
             </Col>
         </Row>
     </div>

@@ -4,8 +4,8 @@ export const customG6GraphData: G6GraphType = {
     "nodes": [
       {
         "id": "node-1",
-        "type": "rect",
-        "style": {
+        "data": {
+          "type": "rect",
           "x": 500,
           "y": 100,
           "size": [
@@ -25,8 +25,8 @@ export const customG6GraphData: G6GraphType = {
       },
       {
         "id": "node-2",
-        "type": "rect",
-        "style": {
+        "data": {
+          "type": "rect",
           "x": 300,
           "y": 300,
           "size": [
@@ -49,8 +49,8 @@ export const customG6GraphData: G6GraphType = {
       },
       {
         "id": "node-3",
-        "type": "rect",
-        "style": {
+        "data": {
+          "type": "rect",
           "x": 700,
           "y": 300,
           "size": [
@@ -73,8 +73,8 @@ export const customG6GraphData: G6GraphType = {
       },
       {
         "id": "node-4",
-        "type": "rect",
-        "style": {
+        "data": {
+          "type": "rect",
           "x": 500,
           "y": 500,
           "size": [
@@ -98,8 +98,8 @@ export const customG6GraphData: G6GraphType = {
         "id": "edge-1",
         "source": "node-1",
         "target": "node-2",
-        type:'line',
-        "style":{
+        "data":{
+          type:'line',
           endArrow: true,
         }
       },
@@ -107,8 +107,8 @@ export const customG6GraphData: G6GraphType = {
         "id": "edge-2",
         "source": "node-1",
         "target": "node-3",
-        type:'line',
-        "style":{
+        "data":{
+          type:'line',
           endArrow: true,
         }
       },
@@ -116,8 +116,8 @@ export const customG6GraphData: G6GraphType = {
         "id": "edge-3",
         "source": "node-2",
         "target": "node-4",
-        type:'line',
-        "style":{
+        "data":{
+          type:'line',
           endArrow: true,
         }
       },
@@ -125,8 +125,8 @@ export const customG6GraphData: G6GraphType = {
         "id": "edge-4",
         "source": "node-3",
         "target": "node-4",
-        type:'line',
-        "style":{
+        "data":{
+          type:'line',
           endArrow: true,
         }
       }
