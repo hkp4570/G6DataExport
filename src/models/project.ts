@@ -6,8 +6,8 @@ import {G6GraphType, NodeType, EdgeType} from "@/utils/def-type";
 
 type IState = {
     currentComponent: G6GraphType,
-    currentNode: NodeType | null,
-    currentEdge: EdgeType | null,
+    currentSelectNodes: NodeType [],
+    currentSelectEdges: EdgeType [],
 }
 
 interface ProjectModal extends Modal {
@@ -19,8 +19,9 @@ export default {
     namespace: 'project',
     state: {
         currentComponent: customG6GraphData,
-        currentNode: null,
-        currentEdge: null,
+        currentSelectNodes: [],
+        currentSelectEdges: [],
+        menuR: 'normal',
     },
     effects: {
         * setNodeData({payload}: any, {put, select}: EffectsCommandMap): Generator<any, void, any> {
@@ -95,27 +96,49 @@ export default {
                 }
             })
         },
-        * setCurrentNode({payload}: { id: string }, {put, select}: EffectsCommandMap): Generator<any, void, any> {
+        * setCurrentSelectNodes({payload}: { id: string }, {
+            put,
+            select
+        }: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select(state => state.project.currentComponent);
-            const {id} = payload;
+            const currentSelectNodes = yield select(state => state.project.currentSelectNodes);
+            const {id, multiple} = payload;
             const nodes = currentComponent.data.nodes;
             const targetNode = nodes.find(f => f.id === id);
+            let newCurrentSelectNodes = currentSelectNodes;
+            if (multiple) {
+                newCurrentSelectNodes.push(targetNode);
+            } else {
+                newCurrentSelectNodes = [targetNode];
+            }
             yield put({
                 type: 'setState',
                 payload: {
-                    currentNode: targetNode,
+                    currentSelectNodes: newCurrentSelectNodes,
+                    menuR: 'node',
                 }
             })
         },
-        * setCurrentEdge({payload}: { id: string }, {put, select}: EffectsCommandMap): Generator<any, void, any> {
+        * setCurrentSelectEdges({payload}: { id: string }, {
+            put,
+            select
+        }: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select(state => state.project.currentComponent);
-            const {id} = payload;
+            const currentSelectEdges = yield select(state => state.project.currentSelectEdges);
+            const {id,multiple} = payload;
             const edges = currentComponent.data.edges;
             const targetEdge = edges.find(f => f.id === id);
+            let newCurrentSelectNodes = currentSelectEdges;
+            if (multiple) {
+                newCurrentSelectNodes.push(targetEdge);
+            } else {
+                newCurrentSelectNodes = [targetEdge];
+            }
             yield put({
                 type: 'setState',
                 payload: {
-                    currentEdge: targetEdge,
+                    currentSelectEdges: targetEdge,
+                    menuR: 'edge',
                 }
             })
         }

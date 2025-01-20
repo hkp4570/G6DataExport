@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { Graph, NodeEvent, EdgeEvent } from '@antv/g6';
-import { Drawer } from 'antd';
+import {Graph} from '@antv/g6';
+import {Drawer} from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
-import { useSelector, useDispatch } from 'dva';
+import {useSelector, useDispatch} from 'dva';
 
 const Index = () => {
     const state = useSelector((state: any) => state.project);
@@ -11,98 +11,117 @@ const Index = () => {
     const dispatch = useDispatch();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const graphRef = useRef<Graph>();
+    const isFirstRender = useRef<boolean>(true);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
-    const handleNodeEvent = (event) => {
-        const id = event.target.id;
-        setDrawerOpen(true);
-        dispatch({
-            type:'project/setCurrentNode',
-            payload: {
-                id
+    // 点击了节点或者边
+    const handleElement = (event) => {
+        console.log(event, 'element')
+        const shiftKey = event.shiftKey;
+        const targetType = event.targetType; // node, edge canvas
+        if (targetType === 'node') {
+            setDrawerOpen(true);
+            const id = event.target.id;
+            dispatch({
+                type: 'project/setCurrentSelectNodes',
+                payload: {
+                    id,
+                    multiple: shiftKey,
+                }
+            })
+        } else if (targetType === 'edge') {
+            setDrawerOpen(true);
+            const id = event.target.id;
+            dispatch({
+                type: 'project/setCurrentSelectEdges',
+                payload: {
+                    id,
+                    multiple: shiftKey,
+                }
+            })
+        } else if (targetType === 'canvas') {
+            if (drawerOpen) {
+                setDrawerOpen(false);
             }
-        })
-    }
-    const handleEdgeEvent = (event) => {
-        const id = event.target.id;
-        setDrawerOpen(true);
-        dispatch({
-            type:'project/setCurrentEdge',
-            payload: {
-                id
-            }
-        })
+        }
     }
     const createG6 = () => {
         const graph = new Graph({
             container: containerRef.current!,
-            // 'drag-canvas','zoom-canvas', 'drag-element', 'click-select',
-            behaviors: [{ type: 'click-select', multiple: true, trigger: ['shift'] }, 'drag-element'],
+            behaviors: [
+                {
+                    type: 'click-select',
+                    multiple: true,
+                    trigger: ['shift'],
+                    onClick: handleElement,
+                },
+                'drag-element'
+            ],
             node: {
-                type: (d:any) => d.data.type,
+                type: (d: any) => d.data.type,
                 style: {
                     x: (d: any) => d.data.x,
                     y: (d: any) => d.data.y,
-                    size: (d:any) => d.data.size,
-                    labelText: (d:any) => d.data.labelText,
-                    fill: (d:any) => d.data.fill || '#1783FF',
-                    stroke: (d:any) => d.data.stroke || '#1783FF',
-                    lineWidth: (d:any) => d.data.lineWidth || 1,
+                    size: (d: any) => d.data.size,
+                    labelText: (d: any) => d.data.labelText,
+                    fill: (d: any) => d.data.fill || '#1783FF',
+                    stroke: (d: any) => d.data.stroke || '#1783FF',
+                    lineWidth: (d: any) => d.data.lineWidth || 1,
 
-                    label: (d:any) => d.data.label !== false,
-                    labelFill: (d:any) => d.data.labelFill || '#000000',
-                    labelFontSize: (d:any) => d.data.labelFontSize || 12,
-                    labelFontWeight: (d:any) => d.data.labelFontWeight || 400,
-                    labelPlacement: (d:any) => d.data.labelPlacement || 'center',
+                    label: (d: any) => d.data.label !== false,
+                    labelFill: (d: any) => d.data.labelFill || '#000000',
+                    labelFontSize: (d: any) => d.data.labelFontSize || 12,
+                    labelFontWeight: (d: any) => d.data.labelFontWeight || 400,
+                    labelPlacement: (d: any) => d.data.labelPlacement || 'center',
 
-                    port: (d:any) => d.data.port,
-                    ports: (d:any) => d.data.ports,
-                    portR: (d:any) => d.data.portR,
-                    portLineWidth: (d:any) => d.data.portLineWidth,
-                    portStroke: (d:any) => d.data.portStroke,
+                    port: (d: any) => d.data.port,
+                    ports: (d: any) => d.data.ports,
+                    portR: (d: any) => d.data.portR,
+                    portLineWidth: (d: any) => d.data.portLineWidth,
+                    portStroke: (d: any) => d.data.portStroke,
                 }
             },
             edge: {
-                type: (d:any) => d.data.type,
+                type: (d: any) => d.data.type,
                 style: {
-                    startArrow: (d:any) => {
-                        if(typeof d.data.startArrow !== 'boolean'){
+                    startArrow: (d: any) => {
+                        if (typeof d.data.startArrow !== 'boolean') {
                             return false;
                         }
-                       return d.data.startArrow
+                        return d.data.startArrow
                     },
-                    endArrow: (d:any) => d.data.endArrow !== false,
-                    startArrowOffset: (d:any) => d.data.startArrowOffset || 0,
-                    startArrowSize: (d:any) => d.data.startArrowSize || 8,
-                    startArrowType: (d:any) => d.data.startArrowType || 'triangle',
-                    endArrowOffset: (d:any) => d.data.endArrowOffset || 0,
-                    endArrowSize:(d:any) => d.data.endArrowSize || 8,
-                    endArrowType: (d:any) => d.data.endArrowType || 'triangle',
-                    stroke: (d:any) => d.data.stroke || '#000000',
-                    lineWidth: (d:any) => d.data.lineWidth || 1,
-                    lineDash: (d:any) => d.data.lineDash || 0,
+                    endArrow: (d: any) => d.data.endArrow !== false,
+                    startArrowOffset: (d: any) => d.data.startArrowOffset || 0,
+                    startArrowSize: (d: any) => d.data.startArrowSize || 8,
+                    startArrowType: (d: any) => d.data.startArrowType || 'triangle',
+                    endArrowOffset: (d: any) => d.data.endArrowOffset || 0,
+                    endArrowSize: (d: any) => d.data.endArrowSize || 8,
+                    endArrowType: (d: any) => d.data.endArrowType || 'triangle',
+                    stroke: (d: any) => d.data.stroke || '#000000',
+                    lineWidth: (d: any) => d.data.lineWidth || 1,
+                    lineDash: (d: any) => d.data.lineDash || 0,
 
-                    label:(d:any) => d.data.label !== false,
-                    labelText: (d:any) => d.data.labelText,
-                    labelFontSize: (d:any) => d.data.labelFontSize || 12,
-                    labelFontWeight: (d:any) => d.data.labelFontWeight || 400,
-                    labelAutoRotate: (d:any) => d.data.labelAutoRotate !== false,
-                    labelFill:(d:any) => d.data.labelFill || '#000000',
-                    labelPlacement: (d:any) => d.data.labelPlacement || 0.5,
-                    labelOffsetX: (d:any) => d.data.labelOffsetX || 0,
-                    labelOffsetY:(d:any) => d.data.labelOffsetY || 0,
+                    label: (d: any) => d.data.label !== false,
+                    labelText: (d: any) => d.data.labelText,
+                    labelFontSize: (d: any) => d.data.labelFontSize || 12,
+                    labelFontWeight: (d: any) => d.data.labelFontWeight || 400,
+                    labelAutoRotate: (d: any) => d.data.labelAutoRotate !== false,
+                    labelFill: (d: any) => d.data.labelFill || '#000000',
+                    labelPlacement: (d: any) => d.data.labelPlacement || 0.5,
+                    labelOffsetX: (d: any) => d.data.labelOffsetX || 0,
+                    labelOffsetY: (d: any) => d.data.labelOffsetY || 0,
                 }
             }, // 默认边
             data: currentComponent.data,
         });
-        graph.on(NodeEvent.CLICK, handleNodeEvent);
-        graph.on(EdgeEvent.CLICK, handleEdgeEvent);
+        // graph.on(NodeEvent.CLICK, handleNodeEvent);
+        // graph.on(EdgeEvent.CLICK, handleEdgeEvent);
         graphRef.current = graph;
         graph.render();
     }
     useEffect(() => {
-        if(!graphRef.current){
-           createG6();
+        if (!graphRef.current) {
+            createG6();
         }
         return () => {
             const graph = graphRef.current;
@@ -114,6 +133,11 @@ const Index = () => {
         }
     }, []);
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+        // TODO 不应该是重新渲染，调用相关API更新
         const graph = graphRef.current;
         if (graph) {
             graph.destroy();
@@ -121,9 +145,9 @@ const Index = () => {
             graphRef.current = undefined;
         }
         createG6();
-    },[currentComponent.data.nodes, currentComponent.data.edges])
+    }, [currentComponent.data.nodes, currentComponent.data.edges])
     return <div>
-        <div className={styles.custom_wrapper} ref={containerRef} />
+        <div className={styles.custom_wrapper} ref={containerRef}/>
         <Drawer open={drawerOpen} mask={false} width={'600'} closeIcon={null}>
             <RightPanel/>
         </Drawer>
