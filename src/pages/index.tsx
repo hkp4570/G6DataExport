@@ -1,17 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Graph} from '@antv/g6';
+import {Graph, NodeEvent} from '@antv/g6';
 import {Drawer} from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
-import {useSelector, useDispatch} from 'dva';
+import {useDispatch} from 'dva';
+import {useGetReduxData} from "@/hooks";
 
 const Index = () => {
-    const state = useSelector((state: any) => state.project);
-    const currentComponent = state.currentComponent;
+    const {firstNode, currentComponent,currentSelectNodes,currentSelectEdges} = useGetReduxData();
     const dispatch = useDispatch();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const graphRef = useRef<Graph>();
-    const isFirstRender = useRef<boolean>(true);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     // 点击了节点或者边
@@ -49,12 +48,12 @@ const Index = () => {
         const graph = new Graph({
             container: containerRef.current!,
             behaviors: [
-                {
-                    type: 'click-select',
-                    multiple: true,
-                    trigger: ['shift'],
-                    onClick: handleElement,
-                },
+                // {
+                //     type: 'click-select',
+                //     multiple: true,
+                //     trigger: ['shift'],
+                //     onClick: handleElement,
+                // },
                 'drag-element'
             ],
             node: {
@@ -114,9 +113,10 @@ const Index = () => {
             }, // 默认边
             data: currentComponent.data,
         });
-        // graph.on(NodeEvent.CLICK, handleNodeEvent);
-        // graph.on(EdgeEvent.CLICK, handleEdgeEvent);
         graphRef.current = graph;
+        graph.on(NodeEvent.CLICK, (event) => {
+            console.log(event, 'event');
+        } )
         graph.render();
     }
     useEffect(() => {
@@ -133,19 +133,14 @@ const Index = () => {
         }
     }, []);
     useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-        // TODO 不应该是重新渲染，调用相关API更新
         const graph = graphRef.current;
-        if (graph) {
-            graph.destroy();
-            graph.off();
-            graphRef.current = undefined;
+        if(graph){
+            const data = currentSelectNodes.map(item => ({id:item.id, style: {zIndex:0}, data: {...item.data}}));
+            console.log(data, 'data')
+            graph.updateNodeData(data);
+            console.log(graph.getNodeData(), 'getNodeData');
         }
-        createG6();
-    }, [currentComponent.data.nodes, currentComponent.data.edges])
+    }, [currentSelectNodes])
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef}/>
         <Drawer open={drawerOpen} mask={false} width={'600'} closeIcon={null}>

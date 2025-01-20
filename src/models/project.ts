@@ -26,12 +26,27 @@ export default {
     effects: {
         * setNodeData({payload}: any, {put, select}: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select((state: any) => state.project.currentComponent);
+            const currentSelectNodes = yield select((state: any) => state.project.currentSelectNodes);
             const {type, value} = payload;
             if (!type) return;
             let nodes = currentComponent.data.nodes;
+            let newCurrentSelectNodes;
             if (type.includes('-')) {
                 const types = type.split('-');
-                nodes = nodes.map((item: EdgeType) => {
+                nodes = nodes.map((item: NodeType) => {
+                    const exist = currentSelectNodes.some(s => s.id === item.id);
+                    if (exist) {
+                        return {
+                            ...item,
+                            [types[0]]: {
+                                ...item[types[0]],
+                                [types[1]]: value
+                            }
+                        }
+                    }
+                    return {...item};
+                });
+                newCurrentSelectNodes = currentSelectNodes.map((item: NodeType) => {
                     return {
                         ...item,
                         [types[0]]: {
@@ -39,20 +54,31 @@ export default {
                             [types[1]]: value
                         }
                     }
-                });
+                })
             } else {
                 nodes = nodes.map((item: EdgeType) => {
+                    const exist = currentSelectNodes.some(s => s.id === item.id);
+                    if (exist) {
+                        return {
+                            ...item,
+                            [type]: value
+                        }
+                    }
+                    return {...item};
+                });
+                newCurrentSelectNodes = currentSelectNodes.map((item: NodeType) => {
                     return {
                         ...item,
                         [type]: value
                     }
-                });
+                })
             }
             const newCurrentComponent = {...currentComponent, data: {...currentComponent.data, nodes}};
             yield put({
                 type: 'setState',
                 payload: {
-                    currentComponent: newCurrentComponent
+                    currentComponent: newCurrentComponent,
+                    currentSelectNodes: newCurrentSelectNodes,
                 }
             })
         },
@@ -66,12 +92,27 @@ export default {
         },
         * setEdgeData({payload}: any, {put, select}: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select((state: any) => state.project.currentComponent);
+            const currentSelectEdges = yield select((state: any) => state.project.currentSelectEdges);
             const {type, value} = payload;
             if (!type) return;
             let edges = currentComponent.data.edges;
+            let newCurrentSelectEdges;
             if (type.includes('-')) {
                 const types = type.split('-');
                 edges = edges.map((item: EdgeType) => {
+                    const exist = currentSelectEdges.some(s => s.id === item.id);
+                    if (exist) {
+                        return {
+                            ...item,
+                            [types[0]]: {
+                                ...item[types[0]],
+                                [types[1]]: value
+                            }
+                        }
+                    }
+                    return {...item};
+                });
+                newCurrentSelectEdges = currentSelectEdges.map((item: NodeType) => {
                     return {
                         ...item,
                         [types[0]]: {
@@ -79,14 +120,24 @@ export default {
                             [types[1]]: value
                         }
                     }
-                });
+                })
             } else {
                 edges = edges.map((item: EdgeType) => {
+                    const exist = currentSelectEdges.some(s => s.id === item.id);
+                    if (exist) {
+                        return {
+                            ...item,
+                            [type]: value
+                        }
+                    }
+                    return {...item};
+                });
+                newCurrentSelectEdges = currentSelectEdges.map((item: NodeType) => {
                     return {
                         ...item,
                         [type]: value
                     }
-                });
+                })
             }
             const newCurrentComponent = {...currentComponent, data: {...currentComponent.data, edges}};
             yield put({
@@ -125,7 +176,7 @@ export default {
         }: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select(state => state.project.currentComponent);
             const currentSelectEdges = yield select(state => state.project.currentSelectEdges);
-            const {id,multiple} = payload;
+            const {id, multiple} = payload;
             const edges = currentComponent.data.edges;
             const targetEdge = edges.find(f => f.id === id);
             let newCurrentSelectNodes = currentSelectEdges;
