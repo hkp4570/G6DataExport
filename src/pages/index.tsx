@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Graph, NodeEvent} from '@antv/g6';
+import React, {useEffect, useRef} from 'react';
+import {Graph, NodeEvent, EdgeEvent, CanvasEvent} from '@antv/g6';
 import {Drawer} from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
@@ -7,55 +7,75 @@ import {useDispatch} from 'dva';
 import {useGetReduxData} from "@/hooks";
 
 const Index = () => {
-    const {firstNode, currentComponent,currentSelectNodes,currentSelectEdges} = useGetReduxData();
+    const {firstNode, currentComponent,currentSelectNodes,currentSelectEdges,menuR} = useGetReduxData();
     const dispatch = useDispatch();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const graphRef = useRef<Graph>();
-    const [drawerOpen, setDrawerOpen] = useState(false);
 
-    // 点击了节点或者边
-    const handleElement = (event) => {
-        console.log(event, 'element')
-        const shiftKey = event.shiftKey;
-        const targetType = event.targetType; // node, edge canvas
-        if (targetType === 'node') {
-            setDrawerOpen(true);
-            const id = event.target.id;
-            dispatch({
-                type: 'project/setCurrentSelectNodes',
-                payload: {
-                    id,
-                    multiple: shiftKey,
-                }
-            })
-        } else if (targetType === 'edge') {
-            setDrawerOpen(true);
-            const id = event.target.id;
-            dispatch({
-                type: 'project/setCurrentSelectEdges',
-                payload: {
-                    id,
-                    multiple: shiftKey,
-                }
-            })
-        } else if (targetType === 'canvas') {
-            if (drawerOpen) {
-                setDrawerOpen(false);
-            }
+
+    const handleNodeClick = (event) => {
+        const graph = graphRef.current;
+        if(!graph) return;
+        const id = event.target.id;
+        const node = graph.getElementState(event.target.id);
+        if(node.length > 0){
+            graph.setElementState(event.target.id, '');
+        }else{
+            graph.setElementState(event.target.id, 'selected');
         }
+        currentSelectEdges.forEach(item => {
+            graph.setElementState(item.id, '');
+        })
+        dispatch({
+            type: 'project/setCurrentSelectNodes',
+            payload: {
+                id,
+            }
+        })
     }
+    const handleEdgeClick = (event) => {
+        const graph = graphRef.current;
+        if(!graph) return;
+        const id = event.target.id;
+        const edge = graph.getElementState(id);
+        if(edge.length > 0){
+            graph.setElementState(id, '');
+        }else{
+            graph.setElementState(id, 'selected')
+        }
+        currentSelectNodes.forEach(item => {
+            graph.setElementState(item.id, '');
+        })
+        dispatch({
+            type: 'project/setCurrentSelectEdges',
+            payload: {
+                id,
+            }
+        })
+    }
+    const handleCanvasClick = () => {
+        const graph = graphRef.current;
+        if(!graph) return;
+        currentSelectNodes.forEach(item => {
+            graph.setElementState(item.id, '');
+        })
+        currentSelectEdges.forEach(item => {
+            graph.setElementState(item.id, '')
+        })
+        dispatch({
+            type: 'project/clearState',
+            payload: {
+                currentSelectNodes: [],
+                currentSelectEdges: [],
+                menuR: 'normal',
+            }
+        })
+    }
+
     const createG6 = () => {
         const graph = new Graph({
             container: containerRef.current!,
-            behaviors: [
-                // {
-                //     type: 'click-select',
-                //     multiple: true,
-                //     trigger: ['shift'],
-                //     onClick: handleElement,
-                // },
-                'drag-element'
-            ],
+            behaviors: [],
             node: {
                 type: (d: any) => d.data.type,
                 style: {
@@ -78,7 +98,13 @@ const Index = () => {
                     portR: (d: any) => d.data.portR,
                     portLineWidth: (d: any) => d.data.portLineWidth,
                     portStroke: (d: any) => d.data.portStroke,
-                }
+                },
+                state: {
+                    'selected':{
+                        "lineWidth": 3,
+                        "stroke": "orange"
+                    }
+                },
             },
             edge: {
                 type: (d: any) => d.data.type,
@@ -109,14 +135,20 @@ const Index = () => {
                     labelPlacement: (d: any) => d.data.labelPlacement || 0.5,
                     labelOffsetX: (d: any) => d.data.labelOffsetX || 0,
                     labelOffsetY: (d: any) => d.data.labelOffsetY || 0,
-                }
+                },
+                state: {
+                    'selected':{
+                        "lineWidth": 3,
+                        "stroke": "orange"
+                    }
+                },
             }, // 默认边
             data: currentComponent.data,
         });
         graphRef.current = graph;
-        graph.on(NodeEvent.CLICK, (event) => {
-            console.log(event, 'event');
-        } )
+        graph.on(NodeEvent.CLICK, handleNodeClick);
+        graph.on(EdgeEvent.CLICK, handleEdgeClick);
+        graph.on(CanvasEvent.CLICK, handleCanvasClick);
         graph.render();
     }
     useEffect(() => {
@@ -134,16 +166,20 @@ const Index = () => {
     }, []);
     useEffect(() => {
         const graph = graphRef.current;
-        if(graph){
+        if(graph && currentSelectNodes.length > 0){
             const data = currentSelectNodes.map(item => ({id:item.id, style: {zIndex:0}, data: {...item.data}}));
-            console.log(data, 'data')
+            data.forEach(item => {
+                graph.setElementState(item.id, '');
+            })
             graph.updateNodeData(data);
-            console.log(graph.getNodeData(), 'getNodeData');
+            data.forEach(item => {
+                graph.setElementState(item.id, 'selected');
+            })
         }
     }, [currentSelectNodes])
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef}/>
-        <Drawer open={drawerOpen} mask={false} width={'600'} closeIcon={null}>
+        <Drawer open={menuR !== 'normal'} mask={false} width={'600'} closeIcon={null}>
             <RightPanel/>
         </Drawer>
     </div>

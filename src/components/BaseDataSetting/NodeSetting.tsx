@@ -26,7 +26,7 @@ const NodeSetting = () => {
                 <Col span={4}>节点类型：</Col>
                 <Col span={15}>
                     <Select
-                        defaultValue={compNode.data?.type}
+                        defaultValue={compNode?.data?.type}
                         style={{width: 120}}
                         onChange={event => handleNodeChange('data-type', event)}
                         options={nodeTypeOptions}

@@ -153,20 +153,22 @@ export default {
         }: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select(state => state.project.currentComponent);
             const currentSelectNodes = yield select(state => state.project.currentSelectNodes);
-            const {id, multiple} = payload;
-            const nodes = currentComponent.data.nodes;
-            const targetNode = nodes.find(f => f.id === id);
+            const {id} = payload;
             let newCurrentSelectNodes = currentSelectNodes;
-            if (multiple) {
-                newCurrentSelectNodes.push(targetNode);
+            const nodes = currentComponent.data.nodes;
+            const exist = currentSelectNodes.some(s => s.id === id);
+            if (exist) {
+                newCurrentSelectNodes = currentSelectNodes.filter(f => f.id !== id);
             } else {
-                newCurrentSelectNodes = [targetNode];
+                const targetNode = nodes.find(f => f.id === id);
+                newCurrentSelectNodes.push(targetNode);
             }
             yield put({
                 type: 'setState',
                 payload: {
                     currentSelectNodes: newCurrentSelectNodes,
-                    menuR: 'node',
+                    currentSelectEdges: [],
+                    menuR: newCurrentSelectNodes.length > 0 ? 'node' : 'normal',
                 }
             })
         },
@@ -176,21 +178,29 @@ export default {
         }: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select(state => state.project.currentComponent);
             const currentSelectEdges = yield select(state => state.project.currentSelectEdges);
-            const {id, multiple} = payload;
+            const {id} = payload;
+            let newCurrentSelectEdges = currentSelectEdges;
             const edges = currentComponent.data.edges;
-            const targetEdge = edges.find(f => f.id === id);
-            let newCurrentSelectNodes = currentSelectEdges;
-            if (multiple) {
-                newCurrentSelectNodes.push(targetEdge);
+            const exist = currentSelectEdges.some(s => s.id === id);
+            if (exist) {
+                newCurrentSelectEdges = currentSelectEdges.filter(f => f.id !== id);
             } else {
-                newCurrentSelectNodes = [targetEdge];
+                const targetEdge = edges.find(f => f.id === id);
+                newCurrentSelectEdges.push(targetEdge);
             }
             yield put({
                 type: 'setState',
                 payload: {
-                    currentSelectEdges: targetEdge,
-                    menuR: 'edge',
+                    currentSelectEdges: newCurrentSelectEdges,
+                    currentSelectNodes: [],
+                    menuR: newCurrentSelectEdges.length > 0 ? 'edge' : 'normal',
                 }
+            })
+        },
+        * clearState({payload}:Partial<IState>, {put}:EffectsCommandMap){
+            yield put({
+                type: 'setState',
+                payload,
             })
         }
     },
