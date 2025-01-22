@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import {Graph, NodeEvent, EdgeEvent, CanvasEvent} from '@antv/g6';
 import type { IElementEvent } from '@antv/g6';
+import { CloseOutlined } from '@ant-design/icons';
 import {Drawer} from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
@@ -67,10 +68,19 @@ const Index = () => {
             payload: {
                 currentSelectNodes: [],
                 currentSelectEdges: [],
-                menuR: 'normal',
+                menuR: 'data',
             }
         })
     }, [])
+
+    const handleCloseDrawer = () => {
+        dispatch({
+            type: 'project/clearState',
+            payload:{
+                menuR: 'normal',
+            }
+        })
+    }
 
     const createG6 = useCallback(() => {
         const graph = new Graph({
@@ -187,6 +197,7 @@ const Index = () => {
         <div className={styles.custom_wrapper} ref={containerRef}/>
         <Drawer open={menuR !== 'normal'} mask={false} width={600} closeIcon={null}>
             <RightPanel/>
+            <CloseOutlined className={styles.close_btn} onClick={handleCloseDrawer} />
         </Drawer>
     </div>
 };

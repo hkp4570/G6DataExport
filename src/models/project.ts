@@ -25,7 +25,7 @@ export default {
         currentComponent: customG6GraphData,
         currentSelectNodes: [],
         currentSelectEdges: [],
-        menuR: 'normal',
+        menuR: 'normal', // node edge data normal
     },
     effects: {
         * setNodeData({payload}: any, {put, select}: EffectsCommandMap): Generator<any, void, any> {
