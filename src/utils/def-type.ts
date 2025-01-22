@@ -4,11 +4,11 @@ type Ports = {
     fill?: string,
 }
 type NodeStyleOriginType = {
-    type?: string,
+    type?: 'rect' | 'circle' | 'diamond' | 'ellipse' | 'hexagon' | 'triangle',
     x: number,
     y: number,
     z?: number,
-    size: [number, number]
+    size: [number, number] | number,
     fill?: string,
     stroke?: string,
     lineWidth?: number,

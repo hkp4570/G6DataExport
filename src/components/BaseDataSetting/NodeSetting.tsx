@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {Col, ColorPicker, Input, InputNumber, Row, Select, Switch} from "antd";
 import {fontWeightOptions, labelPlacementOptions, nodeTypeOptions} from "@/assets/static";
 import { useDispatch} from 'dva';
@@ -17,6 +17,32 @@ const NodeSetting = () => {
             }
         })
     }
+    // 渲染节点大小
+    const renderNodeSize = useMemo(() => {
+        const nodeType = compNode?.data?.type;
+        if(nodeType === 'rect' || nodeType === 'diamond' || nodeType === 'ellipse'){
+           return  <>
+                <InputNumber
+                    onChange={(event) => handleNodeChange('data-size', [event, compNode.data?.size[1]])}
+                    min={0}
+                    style={{marginRight: '8px'}}
+                    defaultValue={compNode.data?.size[0]}
+                />
+                <InputNumber
+                    onChange={(event) => handleNodeChange('data-size', [compNode.data?.size[0], event])}
+                    min={0}
+                    defaultValue={compNode.data?.size[1]}
+                />
+           </>
+        }else if(nodeType === 'circle' || nodeType === 'hexagon' || nodeType === 'triangle'){
+           return <InputNumber
+                onChange={(event) => handleNodeChange('data-size', event)}
+                min={0}
+                defaultValue={compNode.data?.size}
+            />
+        }
+    }, [compNode])
+
     // TODO: 修改文本时可使用防抖
     const debounceHandleEdgeChange = debounce(handleNodeChange, 1000);
     return (
@@ -36,19 +62,7 @@ const NodeSetting = () => {
             <Row align={'middle'} style={{marginBottom: '16px'}}>
                 <Col span={4}>节点大小：</Col>
                 <Col span={15}>
-                    <InputNumber
-                        onChange={(event) => handleNodeChange('data-size', [event, compNode.data?.size[1]])}
-                        min={0}
-                        placeholder='宽'
-                        style={{marginRight: '8px'}}
-                        defaultValue={compNode.data?.size[0]}
-                    />
-                    <InputNumber
-                        onChange={(event) => handleNodeChange('data-size', [compNode.data?.size[0], event])}
-                        min={0}
-                        placeholder='高'
-                        defaultValue={compNode.data?.size[1]}
-                    />
+                    {renderNodeSize}
                 </Col>
             </Row>
             <Row align={'middle'} style={{marginBottom: '16px'}}>

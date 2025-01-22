@@ -1,11 +1,9 @@
 export const nodeTypeOptions: { value: string, label: string }[] = [
     {value: 'circle', label: '圆形'},
     {value: 'diamond', label: '菱形'},
-    {value: 'donut', label: '甜甜圈'},
     {value: 'ellipse', label: '椭圆形'},
     {value: 'hexagon', label: '六边形'},
     {value: 'rect', label: '矩形'},
-    {value: 'star', label: '五角形'},
     {value: 'triangle', label: '三角形'},
 ]
 

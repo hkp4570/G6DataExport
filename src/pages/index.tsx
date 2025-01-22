@@ -9,8 +9,7 @@ import {useGetReduxData} from "@/hooks";
 import type {EdgeType, NodeType} from '@/utils/def-type';
 
 const Index = () => {
-    const {currentComponent,currentSelectNodes,menuR} = useGetReduxData();
-    const currentSelectEdges = useSelector((state:any) => state.project.currentSelectEdges);
+    const {currentComponent,currentSelectNodes,menuR, currentSelectEdges} = useGetReduxData();
     
     const dispatch = useDispatch();
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -33,7 +32,6 @@ const Index = () => {
         })
     },[])
     
-
     const handleEdgeClick = useCallback((event:IElementEvent) => {
         const graph = graphRef.current;
         if(!graph) return;
