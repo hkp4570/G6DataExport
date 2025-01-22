@@ -28,7 +28,7 @@ type NodeStyleOriginType = {
 
 }
 export type NodeType = {
-    id?: string,
+    id: string,
     data: NodeStyleOriginType,
 }
 type EdgeStyleOriginType = {

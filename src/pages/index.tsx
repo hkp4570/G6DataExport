@@ -1,29 +1,28 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {Graph, NodeEvent, EdgeEvent, CanvasEvent} from '@antv/g6';
+import type { IElementEvent } from '@antv/g6';
 import {Drawer} from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
-import {useDispatch} from 'dva';
+import {useDispatch, useSelector, connect} from 'dva';
 import {useGetReduxData} from "@/hooks";
+import type {EdgeType, NodeType} from '@/utils/def-type';
 
 const Index = () => {
-    const {firstNode, currentComponent,currentSelectNodes,currentSelectEdges,menuR} = useGetReduxData();
+    const {currentComponent,currentSelectNodes,menuR} = useGetReduxData();
+    const currentSelectEdges = useSelector((state:any) => state.project.currentSelectEdges);
+    
     const dispatch = useDispatch();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const graphRef = useRef<Graph>();
+    const currentSelectEdgesRef = useRef(currentSelectEdges);
+    const currentSelectNodesRef = useRef(currentSelectNodes);
 
-
-    const handleNodeClick = (event) => {
+    const handleNodeClick = useCallback((event:IElementEvent) => {        
         const graph = graphRef.current;
         if(!graph) return;
         const id = event.target.id;
-        const node = graph.getElementState(event.target.id);
-        if(node.length > 0){
-            graph.setElementState(event.target.id, '');
-        }else{
-            graph.setElementState(event.target.id, 'selected');
-        }
-        currentSelectEdges.forEach(item => {
+        currentSelectEdgesRef.current.forEach((item:EdgeType) => {
             graph.setElementState(item.id, '');
         })
         dispatch({
@@ -32,8 +31,10 @@ const Index = () => {
                 id,
             }
         })
-    }
-    const handleEdgeClick = (event) => {
+    },[])
+    
+
+    const handleEdgeClick = useCallback((event:IElementEvent) => {
         const graph = graphRef.current;
         if(!graph) return;
         const id = event.target.id;
@@ -43,7 +44,7 @@ const Index = () => {
         }else{
             graph.setElementState(id, 'selected')
         }
-        currentSelectNodes.forEach(item => {
+        currentSelectNodesRef.current.forEach((item: NodeType) => {
             graph.setElementState(item.id, '');
         })
         dispatch({
@@ -52,14 +53,15 @@ const Index = () => {
                 id,
             }
         })
-    }
-    const handleCanvasClick = () => {
+    },[])
+
+    const handleCanvasClick = useCallback(() => {
         const graph = graphRef.current;
         if(!graph) return;
-        currentSelectNodes.forEach(item => {
+        currentSelectNodesRef.current.forEach((item: NodeType) => {
             graph.setElementState(item.id, '');
         })
-        currentSelectEdges.forEach(item => {
+        currentSelectEdgesRef.current.forEach((item: EdgeType) => {
             graph.setElementState(item.id, '')
         })
         dispatch({
@@ -70,9 +72,9 @@ const Index = () => {
                 menuR: 'normal',
             }
         })
-    }
+    }, [])
 
-    const createG6 = () => {
+    const createG6 = useCallback(() => {
         const graph = new Graph({
             container: containerRef.current!,
             behaviors: [],
@@ -150,7 +152,8 @@ const Index = () => {
         graph.on(EdgeEvent.CLICK, handleEdgeClick);
         graph.on(CanvasEvent.CLICK, handleCanvasClick);
         graph.render();
-    }
+    },[handleNodeClick,handleEdgeClick,handleCanvasClick,currentSelectEdges])
+
     useEffect(() => {
         if (!graphRef.current) {
             createG6();
@@ -165,18 +168,23 @@ const Index = () => {
         }
     }, []);
     useEffect(() => {
+        currentSelectEdgesRef.current = currentSelectEdges;
+        currentSelectNodesRef.current = currentSelectNodes;
+    },[currentSelectEdges,currentSelectNodes])
+
+    useEffect(() => {
         const graph = graphRef.current;
         if(graph && currentSelectNodes.length > 0){
-            const data = currentSelectNodes.map(item => ({id:item.id, style: {zIndex:0}, data: {...item.data}}));
-            data.forEach(item => {
+            currentSelectNodes.forEach((item:NodeType) => {
                 graph.setElementState(item.id, '');
             })
-            graph.updateNodeData(data);
-            data.forEach(item => {
+            graph.updateNodeData(currentSelectNodes);
+            currentSelectNodes.forEach((item: NodeType) => {
                 graph.setElementState(item.id, 'selected');
             })
         }
     }, [currentSelectNodes])
+
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef}/>
         <Drawer open={menuR !== 'normal'} mask={false} width={'600'} closeIcon={null}>

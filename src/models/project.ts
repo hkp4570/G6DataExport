@@ -147,14 +147,11 @@ export default {
                 }
             })
         },
-        * setCurrentSelectNodes({payload}: { id: string }, {
-            put,
-            select
-        }: EffectsCommandMap): Generator<any, void, any> {
+        * setCurrentSelectNodes({payload}: any, {put,select}: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select(state => state.project.currentComponent);
             const currentSelectNodes = yield select(state => state.project.currentSelectNodes);
             const {id} = payload;
-            let newCurrentSelectNodes = currentSelectNodes;
+            let newCurrentSelectNodes = window.structuredClone(currentSelectNodes);
             const nodes = currentComponent.data.nodes;
             const exist = currentSelectNodes.some(s => s.id === id);
             if (exist) {
@@ -172,14 +169,14 @@ export default {
                 }
             })
         },
-        * setCurrentSelectEdges({payload}: { id: string }, {
+        * setCurrentSelectEdges({payload}: any, {
             put,
             select
         }: EffectsCommandMap): Generator<any, void, any> {
             const currentComponent = yield select(state => state.project.currentComponent);
             const currentSelectEdges = yield select(state => state.project.currentSelectEdges);
             const {id} = payload;
-            let newCurrentSelectEdges = currentSelectEdges;
+            let newCurrentSelectEdges = window.structuredClone(currentSelectEdges);
             const edges = currentComponent.data.edges;
             const exist = currentSelectEdges.some(s => s.id === id);
             if (exist) {
@@ -197,12 +194,12 @@ export default {
                 }
             })
         },
-        * clearState({payload}:Partial<IState>, {put}:EffectsCommandMap){
+        * clearState({payload}:any, {put}:EffectsCommandMap){
             yield put({
                 type: 'setState',
                 payload,
             })
-        }
+        },
     },
     reducers: {
         setState(state: IState, {payload}: { payload: Partial<IState> }) {
