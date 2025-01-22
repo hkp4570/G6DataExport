@@ -1,17 +1,17 @@
-import React, {useEffect, useState} from 'react';
+import React, {Children, useEffect, useState} from 'react';
 import styles from './index.less';
 import {Tabs, Button} from 'antd';
 import {JsonEditor as Editor} from 'jsoneditor-react';
-import {useSelector, useDispatch} from 'dva';
+import {useDispatch} from 'dva';
 import BaseDataSetting from '../BaseDataSetting';
 import 'jsoneditor-react/es/editor.min.css';
+import { useGetReduxData } from '@/hooks';
 
 const RightPanel = () => {
     const dispatch = useDispatch();
-    const currentComponent = useSelector((state: any) => state.project.currentComponent);
+    const { currentComponent } = useGetReduxData();
     const [jsonData, setJsonData] = useState(currentComponent);
     const handleChangeJson = (data) => {
-        console.log(data, 'data')
         dispatch({
             type: 'project/setG6Data',
             payload: {
@@ -66,38 +66,46 @@ const RightPanel = () => {
     }
 
     useEffect(() => {
+        console.log('render ')
         document.addEventListener('keydown', handleKeyDown);
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         }
     }, []);
 
-    useEffect(() => {
-        setJsonData(currentComponent);
-    },[currentComponent])
+    const items = [
+        {
+            key:'baseSetting',
+            label: '基础设置',
+            children: <BaseDataSetting />
+        },
+        {
+            key: 'dataSetting',
+            label: '数据',
+            children: <>
+                    <Button type='primary' style={{marginBottom: '16px'}} size='small' onClick={exportData}>导出数据</Button>
+                    <div style={{height:'100%'}}>
+                    <Editor
+                            value={currentComponent}
+                            onChange={handleChangeJson}
+                            mode={'code'}
+                            navigationBar={false}
+                            statusBar={false}
+                            search={false}
+                            history={false}
+                            sortObjectKeys={false}
+                            htmlElementProps={{className: 'json_editor'}}
+                        />
+                    </div>
+                      
+                </>
+        }
+    ]
 
     return (
         <div className={styles.right_panel}>
-            <Tabs defaultActiveKey="baseSetting">
-                <Tabs.TabPane tab="基础设置" key="baseSetting">
-                    <BaseDataSetting />
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="数据" key="dataSetting" style={{height: '600px'}}>
-                    <Button type='primary' style={{marginBottom: '16px'}} size='small' onClick={exportData}>导出数据</Button>
-                    <Editor
-                        value={jsonData}
-                        onChange={handleChangeJson}
-                        mode={'code'}
-                        navigationBar={false}
-                        statusBar={false}
-                        search={false}
-                        history={false}
-                        sortObjectKeys={false}
-                        htmlElementProps={{className: 'json_editor'}}
-                    />
-                </Tabs.TabPane>
-            </Tabs>
+            <Tabs defaultActiveKey="baseSetting" destroyInactiveTabPane items={items}></Tabs>
         </div>
     );
 };
-export default RightPanel;
+export default React.memo(RightPanel);

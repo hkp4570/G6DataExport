@@ -141,4 +141,4 @@ const NodeSetting = () => {
     );
 };
 
-export default NodeSetting;
+export default React.memo(NodeSetting);

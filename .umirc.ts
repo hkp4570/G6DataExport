@@ -11,5 +11,6 @@ export default defineConfig({
   npmClient: 'yarn',
   alias: {
     '@': '/src',
-  }
+  },
+  devtool: process.env.NODE_ENV === 'development' ? 'eval' : false,
 });

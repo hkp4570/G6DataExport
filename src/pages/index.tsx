@@ -185,7 +185,7 @@ const Index = () => {
 
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef}/>
-        <Drawer open={menuR !== 'normal'} mask={false} width={'600'} closeIcon={null}>
+        <Drawer open={menuR !== 'normal'} mask={false} width={600} closeIcon={null}>
             <RightPanel/>
         </Drawer>
     </div>

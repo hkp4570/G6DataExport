@@ -192,4 +192,4 @@ const EdgeSetting = () => {
     );
 };
 
-export default EdgeSetting;
+export default React.memo(EdgeSetting);

@@ -15,6 +15,10 @@ interface ProjectModal extends Modal {
     effects: Effects
 }
 
+interface RootProjectState {
+    project: IState
+}
+
 export default {
     namespace: 'project',
     state: {
@@ -25,8 +29,8 @@ export default {
     },
     effects: {
         * setNodeData({payload}: any, {put, select}: EffectsCommandMap): Generator<any, void, any> {
-            const currentComponent = yield select((state: any) => state.project.currentComponent);
-            const currentSelectNodes = yield select((state: any) => state.project.currentSelectNodes);
+            const currentComponent = yield select((state: RootProjectState) => state.project.currentComponent);
+            const currentSelectNodes = yield select((state: RootProjectState) => state.project.currentSelectNodes);
             const {type, value} = payload;
             if (!type) return;
             let nodes = currentComponent.data.nodes;
@@ -34,7 +38,7 @@ export default {
             if (type.includes('-')) {
                 const types = type.split('-');
                 nodes = nodes.map((item: NodeType) => {
-                    const exist = currentSelectNodes.some(s => s.id === item.id);
+                    const exist = currentSelectNodes.some((s:NodeType) => s.id === item.id);
                     if (exist) {
                         return {
                             ...item,
