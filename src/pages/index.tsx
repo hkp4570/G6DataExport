@@ -209,10 +209,12 @@ const Index = () => {
     },[currentSelectEdges])
 
     useEffect(() => {
-        console.log(currentComponent, 'currentComponent===');
         const graph = graphRef.current;
         if(graph){
             graph.setData(currentComponent.data);
+            graph.updateNodeData(currentComponent.data.nodes);
+            graph.updateEdgeData(currentComponent.data.edges);
+            graph.render();
         }
     },[currentComponent])
 
