@@ -5,7 +5,7 @@ import { CloseOutlined } from '@ant-design/icons';
 import {Drawer} from 'antd';
 import styles from './index.less';
 import RightPanel from "@/components/RightPanel";
-import {useDispatch, useSelector, connect} from 'dva';
+import {useDispatch} from 'dva';
 import {useGetReduxData} from "@/hooks";
 import type {EdgeType, NodeType} from '@/utils/def-type';
 
@@ -180,6 +180,7 @@ const Index = () => {
         currentSelectNodesRef.current = currentSelectNodes;
     },[currentSelectEdges,currentSelectNodes])
 
+    // 节点属性变化
     useEffect(() => {
         const graph = graphRef.current;
         if(graph && currentSelectNodes.length > 0){
@@ -192,6 +193,28 @@ const Index = () => {
             })
         }
     }, [currentSelectNodes])
+
+    // 边属性变化
+    useEffect(() => {
+        const graph = graphRef.current;
+        if(graph && currentSelectEdges.length > 0){
+            currentSelectEdges.forEach((item:EdgeType) => {
+                graph.setElementState(item.id, '');
+            })
+            graph.updateEdgeData(currentSelectEdges);
+            currentSelectEdges.forEach((item: EdgeType) => {
+                graph.setElementState(item.id, 'selected');
+            })
+        }
+    },[currentSelectEdges])
+
+    useEffect(() => {
+        console.log(currentComponent, 'currentComponent===');
+        const graph = graphRef.current;
+        if(graph){
+            graph.setData(currentComponent.data);
+        }
+    },[currentComponent])
 
     return <div>
         <div className={styles.custom_wrapper} ref={containerRef}/>

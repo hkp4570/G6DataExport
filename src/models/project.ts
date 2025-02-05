@@ -104,7 +104,7 @@ export default {
             if (type.includes('-')) {
                 const types = type.split('-');
                 edges = edges.map((item: EdgeType) => {
-                    const exist = currentSelectEdges.some(s => s.id === item.id);
+                    const exist = currentSelectEdges.some((s:EdgeType) => s.id === item.id);
                     if (exist) {
                         return {
                             ...item,
@@ -116,7 +116,7 @@ export default {
                     }
                     return {...item};
                 });
-                newCurrentSelectEdges = currentSelectEdges.map((item: NodeType) => {
+                newCurrentSelectEdges = currentSelectEdges.map((item: EdgeType) => {
                     return {
                         ...item,
                         [types[0]]: {
@@ -147,7 +147,8 @@ export default {
             yield put({
                 type: 'setState',
                 payload: {
-                    currentComponent: newCurrentComponent
+                    currentComponent: newCurrentComponent,
+                    currentSelectEdges: newCurrentSelectEdges
                 }
             })
         },

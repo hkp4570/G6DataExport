@@ -6,12 +6,14 @@ import {useDispatch} from 'dva';
 import BaseDataSetting from '../BaseDataSetting';
 import 'jsoneditor-react/es/editor.min.css';
 import { useGetReduxData } from '@/hooks';
+import type {G6GraphType} from '@/utils/def-type';
 
 const RightPanel = () => {
     const dispatch = useDispatch();
     const { currentComponent, menuR } = useGetReduxData();
     const [jsonData, setJsonData] = useState(currentComponent);
-    const handleChangeJson = (data) => {
+    const handleChangeJson = (data:G6GraphType) => {
+        console.log(data, 'data');
         dispatch({
             type: 'project/setG6Data',
             payload: {
